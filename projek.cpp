@@ -3,6 +3,21 @@
 
 using namespace std;
 
+struct Barang {
+    string id;       
+    string nama;     
+    int stok;
+    double harga;
+};
+
+struct Akun {
+    string username;
+    string password;
+};
+
+// ==========================================
+// 1. FUNGSI CEK INVENTARIS
+// ==========================================
 void cekInventaris() {
     char pilihanCari;
     string kodeBarang;
@@ -17,6 +32,9 @@ void cekInventaris() {
         cout << "ERROR: File inventaris.csv tidak ditemukan!\n" << endl;
         return; 
     }
+
+    string headerAbaikan;
+    getline(fileInventaris, headerAbaikan);
 
     string kode, nama, stok, harga;
 
@@ -49,11 +67,10 @@ void cekInventaris() {
                 cout << "Masukkan Kode Barang : "; cin >> kodeBarang;
                 found = false;
 
-                // Reset kursor agar kembali ke awal file
-                fileInventaris.clear();             // Menghapus tanda bahwa file sudah mentok (EOF)
-                fileInventaris.seekg(0, ios::beg);  // Menggulung kursor kembali ke byte ke-0 (begin)
+                fileInventaris.clear();             
+                fileInventaris.seekg(0, ios::beg);  
+                getline(fileInventaris, headerAbaikan);
 
-                // Baca ulang file dari atas ke bawah untuk mencari kecocokan
                 while (getline(fileInventaris, kode, ',')) {
                     getline(fileInventaris, nama, ',');  
                     getline(fileInventaris, stok, ',');  
@@ -71,9 +88,9 @@ void cekInventaris() {
                     } 
                 }
 
-                    if (!found) {
-                        cout << "\n[Sistem]: Barang dengan kode '" << kodeBarang << "' tidak ditemukan!\n" << endl;
-                    }
+                if (!found) {
+                    cout << "\n[Sistem]: Barang dengan kode '" << kodeBarang << "' tidak ditemukan!\n" << endl;
+                }
             } while (!found);
 
             cout << "Apakah ingin mencari barang lagi? (y/n) : "; cin >> pilihanCariLagi;
@@ -84,13 +101,154 @@ void cekInventaris() {
     fileInventaris.close();
 }
 
-struct Akun {
-    string username;
-    string password;
-};
+// ==========================================
+// 2. FUNGSI PERBARUI DATA
+// ==========================================
+void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
+    jumlahBarang = 0;
+    ifstream fileInput("inventaris.csv");
+    if (!fileInput.is_open()) {
+        cout << "Gagal membuka file inventaris.csv!\n\n";
+        return;
+    }
 
+    string header;
+    getline(fileInput, header); 
+
+    string strStok, strHarga, idTmp, namaTmp;
+    while (getline(fileInput, idTmp, ',') &&
+           getline(fileInput, namaTmp, ',') &&
+           getline(fileInput, strStok, ',') &&
+           getline(fileInput, strHarga, '\n')) {
+        
+        databaseBarang[jumlahBarang].id = idTmp;
+        databaseBarang[jumlahBarang].nama = namaTmp;
+
+        databaseBarang[jumlahBarang].stok = 0;
+        for(size_t i=0; i < strStok.length(); i++) {
+            databaseBarang[jumlahBarang].stok = databaseBarang[jumlahBarang].stok * 10 + (strStok[i] - '0');
+        }
+        
+        databaseBarang[jumlahBarang].harga = 0;
+        for(size_t i=0; i < strHarga.length() && strHarga[i] != '.'; i++) {
+            databaseBarang[jumlahBarang].harga = databaseBarang[jumlahBarang].harga * 10 + (strHarga[i] - '0');
+        }
+
+        jumlahBarang++;
+    }
+    fileInput.close();
+
+    char editBarangLain;
+    do {
+        // Bagian Tampilan Tabel yang Sudah Disamakan dengan cekInventaris
+        cout << "===================================================" << endl;
+        cout << "KODE\t| NAMA BARANG\t\t| STOK\t| HARGA" << endl;
+        cout << "===================================================" << endl;
+        for (int i = 0; i < jumlahBarang; i++) {
+            cout << databaseBarang[i].id << "\t| " << databaseBarang[i].nama;
+            if (databaseBarang[i].nama.length() < 14) {
+                cout << "\t\t| ";
+            } else {
+                cout << "\t| ";
+            }
+            cout << databaseBarang[i].stok << "\t| Rp" << databaseBarang[i].harga << endl;
+        }
+        cout << "===================================================\n" << endl;
+
+        string idInput;
+        int indexDitemukan = -1;
+
+        while (true) {
+            cout << "Masukkan ID Barang yang ingin diubah: ";
+            cin >> idInput;
+
+            for (int i = 0; i < jumlahBarang; i++) {
+                if (databaseBarang[i].id == idInput) {
+                    indexDitemukan = i;
+                    break;
+                }
+            }
+
+            if (indexDitemukan != -1) {
+                cout << "-> ID Barang ditemukan.\n";
+                break;
+            } else {
+                cout << "-> ID Barang tidak ditemukan! Coba lagi.\n\n";
+            }
+        }
+
+        cout << "\n--- Detail Barang Terpilih ---\n";
+        cout << "ID    : " << databaseBarang[indexDitemukan].id << "\n";
+        cout << "Nama  : " << databaseBarang[indexDitemukan].nama << "\n";
+        cout << "Stok  : " << databaseBarang[indexDitemukan].stok << "\n";
+        cout << "Harga : " << databaseBarang[indexDitemukan].harga << "\n";
+
+        char editLagi;
+        do {
+            cout << "\nAtribut yang ingin di-edit:\n";
+            cout << "1. Nama\n2. Stok\n3. Harga\nPilihan (1-3): ";
+            int pilihanEdit;
+            cin >> pilihanEdit;
+
+            if (pilihanEdit == 1) {
+                cout << "Masukkan nama baru: ";
+                cin.ignore();
+                getline(cin, databaseBarang[indexDitemukan].nama);
+                cout << "-> Nama berhasil diperbarui.\n";
+            } 
+            else if (pilihanEdit == 2) {
+                cout << "Masukkan stok baru: ";
+                cin >> databaseBarang[indexDitemukan].stok;
+                cout << "-> Stok berhasil diperbarui.\n";
+            } 
+            else if (pilihanEdit == 3) {
+                cout << "Masukkan harga baru: ";
+                cin >> databaseBarang[indexDitemukan].harga;
+                cout << "-> Harga berhasil diperbarui.\n";
+            } 
+            else {
+                cout << "Pilihan tidak valid.\n";
+            }
+
+            cout << "\nApakah ingin mengedit atribut lain dari barang ini? (y/n): ";
+            cin >> editLagi;
+
+        } while (editLagi == 'y' || editLagi == 'Y');
+
+        cout << "\nApakah Anda ingin mengedit BARANG LAIN? (y/n): ";
+        cin >> editBarangLain;
+        cout << endl;
+
+    } while (editBarangLain == 'y' || editBarangLain == 'Y');
+
+    ofstream fileOutput("inventaris.csv");
+    if (fileOutput.is_open()) {
+        fileOutput << "id,nama,stok,harga\n"; 
+        for (int i = 0; i < jumlahBarang; i++) {
+            fileOutput << databaseBarang[i].id << "," 
+                       << databaseBarang[i].nama << "," 
+                       << databaseBarang[i].stok << "," 
+                       << databaseBarang[i].harga << "\n";
+        }
+        fileOutput.close();
+        cout << "\n-> Perubahan berhasil disimpan ke inventaris.csv!\n";
+    } else {
+        cout << "\n[Error] Gagal menyimpan data ke file!\n";
+    }
+
+    cout << "\nTekan Enter untuk kembali ke Menu Utama...";
+    cin.ignore(); 
+    cin.get();    
+    cout << endl;
+}
+
+// ==========================================
+// 3. FUNGSI TAMPILKAN MENU
+// ==========================================
 void tampilkanMenu() {
     int pilihan;
+    Barang databaseBarang[100];
+    int jumlahBarang = 0;
     
     cout << "=== DAFTAR PILIHAN ===" << endl;
     cout << "1. Cek Inventaris" << endl;
@@ -107,20 +265,10 @@ void tampilkanMenu() {
             tampilkanMenu(); 
         break;
 
-        // case 2:
-        //     perbaruiData();
-        //     tampilkanMenu(); 
-        // break;   
-        
-        // case 3:
-        //     tambahBarang();
-        //     tampilkanMenu(); 
-        // break;
-
-        // case 4:
-        //     cariTransaksi();
-        //     tampilkanMenu(); 
-        // break;
+        case 2:
+             perbaruiData(databaseBarang, jumlahBarang);
+             tampilkanMenu(); 
+        break;   
 
         case 5:
             cout << "Program Selesai. Terima kasih!" << endl;
@@ -133,6 +281,9 @@ void tampilkanMenu() {
     }
 }
 
+// ==========================================
+// 4. FUNGSI UTAMA (MAIN)
+// ==========================================
 int main(){
     string inputUser, inputPass;
     int kesempatan = 3;
@@ -160,8 +311,8 @@ int main(){
 
         if (loginBerhasil == true) {
             cout << "\n=====================================" << endl;
-            cout << "Login Berhasil!" << endl;
-            cout << "Selamat datang, " << inputUser << "." << endl;
+            cout << "           Login Berhasil!" << endl;
+            cout << "       Selamat datang, " << inputUser << "." << endl;
             cout << "=====================================\n" << endl;
             break; 
         }

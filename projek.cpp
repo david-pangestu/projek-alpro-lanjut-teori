@@ -243,7 +243,85 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 }
 
 // ==========================================
-// 3. FUNGSI TAMPILKAN MENU
+// 3. Tambah data
+// ==========================================
+void tambahBarang(){
+    bool konfirmasi = false;
+    char konfirmChar;
+    string namaBarang, hargaBarang, stokBarang, idBaru, idTerakhir, baris;
+
+    while (!konfirmasi)
+    {
+        cin.ignore();
+        cout<<"Nama barang  : "; getline(cin, namaBarang);
+        cout<<"Harga barang : "; cin>>hargaBarang;
+        cout<<"Stok barang  : "; cin>>stokBarang;
+        cin.ignore();
+
+        cout<<"Konfirmasi penambahan (y/n)? ";cin>>konfirmChar;
+
+        if (konfirmChar == 'y' || konfirmChar == 'Y')
+        {
+            konfirmasi = true;
+        }
+    }
+
+    idTerakhir = "000";
+    ifstream fileBaca ("inventaris.csv");
+    string headerSkip;
+    getline(fileBaca, baris);
+
+    while (getline(fileBaca, baris))
+    {
+        if (!baris.empty())
+        {
+            idTerakhir = baris.substr(0, baris.find(','));
+        }
+    }
+    fileBaca.close();
+    
+
+    int noBaru = 0;
+    for (size_t i = 0; i < idTerakhir.length(); i++) {
+        noBaru = noBaru * 10 + (idTerakhir[i] - '0');
+    }
+    noBaru++;
+
+    // format jadi 3 digit
+    if (noBaru < 10) {
+        idBaru = "00" + (char)('0' + noBaru);
+    } else if (noBaru < 100) {
+        idBaru = "0";
+        idBaru += (char)('0' + noBaru / 10);
+        idBaru += (char)('0' + noBaru % 10);
+    } else {
+        idBaru += (char)('0' + noBaru / 100);
+        idBaru += (char)('0' + (noBaru / 10) % 10);
+        idBaru += (char)('0' + noBaru % 10);
+    }
+
+    ofstream tulisBarang ("inventaris.csv", ios::app);
+    if (!tulisBarang.is_open())
+    {
+        cout<<"ERROR: File tidak ditemukan!"<<endl;
+        return;
+    }
+
+    tulisBarang << idBaru << ',' << namaBarang << ',' << stokBarang << ',' << hargaBarang << endl;
+
+    tulisBarang.close();
+    cout<<"Barang berhasil ditambahkan!" << endl << "Mau tambah lagi (y/n)? "; cin>>konfirmChar;
+
+    if (konfirmChar == 'y' || konfirmChar == 'Y')
+    {
+        tambahBarang();
+    }
+    
+
+}
+
+// ==========================================
+// 4. FUNGSI TAMPILKAN MENU
 // ==========================================
 void tampilkanMenu() {
     int pilihan;
@@ -282,7 +360,7 @@ void tampilkanMenu() {
 }
 
 // ==========================================
-// 4. FUNGSI UTAMA (MAIN)
+// 5. FUNGSI UTAMA (MAIN)
 // ==========================================
 int main(){
     string inputUser, inputPass;

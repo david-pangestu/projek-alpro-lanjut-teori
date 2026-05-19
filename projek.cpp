@@ -243,7 +243,7 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 }
 
 // ==========================================
-// 3. Tambah data
+// 3. Tambah Barang
 // ==========================================
 void tambahBarang(){
     bool konfirmasi = false;
@@ -258,7 +258,7 @@ void tambahBarang(){
         cout<<"Stok barang  : "; cin>>stokBarang;
         cin.ignore();
 
-        cout<<"Konfirmasi penambahan (y/n)? ";cin>>konfirmChar;
+        cout<<"\nKonfirmasi penambahan (y/n)? ";cin>>konfirmChar;
 
         if (konfirmChar == 'y' || konfirmChar == 'Y')
         {
@@ -280,7 +280,6 @@ void tambahBarang(){
     }
     fileBaca.close();
     
-
     int noBaru = 0;
     for (size_t i = 0; i < idTerakhir.length(); i++) {
         noBaru = noBaru * 10 + (idTerakhir[i] - '0');
@@ -310,14 +309,14 @@ void tambahBarang(){
     tulisBarang << idBaru << ',' << namaBarang << ',' << stokBarang << ',' << hargaBarang << endl;
 
     tulisBarang.close();
-    cout<<"Barang berhasil ditambahkan!" << endl << "Mau tambah lagi (y/n)? "; cin>>konfirmChar;
+    cout<<"Barang berhasil ditambahkan!" << endl;
+    cout << "\nMau tambah lagi (y/n)? "; cin >> konfirmChar;
 
     if (konfirmChar == 'y' || konfirmChar == 'Y')
     {
         tambahBarang();
     }
     
-
 }
 
 // ==========================================
@@ -402,7 +401,7 @@ int main(){
 
         kesempatan--;
         cout << "Login Gagal. Username atau Password salah!!" << endl;
-       
+        
         if (kesempatan > 0) {
             cout << "Kesempatan anda tinggal " << kesempatan << " lagi\n" << endl;
         } else {

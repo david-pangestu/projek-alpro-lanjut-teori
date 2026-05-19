@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -320,7 +321,96 @@ void tambahBarang(){
 }
 
 // ==========================================
-// 4. FUNGSI TAMPILKAN MENU
+// 4. FUNGSI CARI TRANSAKSI
+// ==========================================
+void cariTransaksi() {
+    cout << "\n[Sistem]: Membaca data transaksi...\n" << endl;
+
+    ifstream fileTransaksi("daftar_transaksi.csv");
+
+    if (!fileTransaksi.is_open()) {
+        cout << "ERROR: File daftar_transaksi.csv tidak ditemukan!\n";
+        return;
+    }
+
+    string header;
+    getline(fileTransaksi, header);
+
+    string cariID;
+    bool ditemukan;
+    char cariLagi;
+
+    do {
+        do {
+            ditemukan = false;
+
+            cout << "Masukkan ID transaksi : ";
+            cin >> cariID;
+
+            // reset pointer file ke awal
+            fileTransaksi.clear();
+            fileTransaksi.seekg(0, ios::beg);
+            getline(fileTransaksi, header);
+
+            string id, nama, jumlah, harga, total;
+            int totalSemua = 0;
+
+            cout << "\n========================================================\n";
+            cout << left
+                << setw(20) << "Barang"
+                << setw(10) << "Jumlah"
+                << setw(12) << "Harga"
+                << setw(12) << "Subtotal"
+                << endl;
+
+            cout << "========================================================\n";
+
+            while (
+                getline(fileTransaksi, id, ',') &&
+                getline(fileTransaksi, nama, ',') &&
+                getline(fileTransaksi, jumlah, ',') &&
+                getline(fileTransaksi, harga, ',') &&
+                getline(fileTransaksi, total, '\n')
+            ) {
+
+                if (id == cariID) {
+                    ditemukan = true;
+
+                    cout << left
+                    << setw(20) << nama
+                    << setw(10) << jumlah
+                    << setw(12) << ("Rp" + harga)
+                    << setw(12) << ("Rp" + total)
+                    << endl;
+
+                    totalSemua += stoi(total);
+                }
+            }
+
+            if (ditemukan) {
+                cout << "========================================================\n";
+                cout << "TOTAL TRANSAKSI : Rp" << totalSemua << endl;
+                cout << "========================================================\n";
+            }
+            else {
+                cout << "\nID transaksi tidak ditemukan!\n";
+                cout << "Silakan input ulang.\n\n";
+            }
+
+        } while (!ditemukan);
+
+        cout << "Cari transaksi lain? (y/n): ";
+        cin >> cariLagi;
+        cout << endl;
+
+    } while (cariLagi == 'y' || cariLagi == 'Y');
+
+    fileTransaksi.close();
+}
+
+
+// ==========================================
+// 5. FUNGSI TAMPILKAN MENU
 // ==========================================
 void tampilkanMenu() {
     int pilihan;
@@ -352,6 +442,11 @@ void tampilkanMenu() {
             tampilkanMenu();
         break;
 
+        case 4:
+            cariTransaksi();
+            tampilkanMenu();
+        break;
+
         case 5:
             cout << "Program Selesai. Terima kasih!" << endl;
         break;
@@ -364,7 +459,7 @@ void tampilkanMenu() {
 }
 
 // ==========================================
-// 5. FUNGSI UTAMA (MAIN)
+// 6. FUNGSI UTAMA (MAIN)
 // ==========================================
 int main(){
     string inputUser, inputPass;

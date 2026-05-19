@@ -1,0 +1,30 @@
+id_transaksi,nama_barang,jumlah,harga,total
+001,Teh Manis,2,8000,16000
+001,Mie Instan Goreng,5,3000,15000
+001,Sabun Mandi,1,3000,3000
+002,Beras Premium,1,65000,65000
+002,Minyak Goreng,2,32000,64000
+002,Telur Ayam,1,26000,26000
+003,Kopi Hitam,3,10000,30000
+003,Gula Pasir,1,12000,12000
+004,Susu UHT 1L,2,18000,36000
+004,Mie Instan Kuah,10,2800,28000
+004,Teh Manis,1,8000,8000
+005,Tepung Terigu,2,11000,22000
+005,Telur Ayam,2,26000,52000
+005,Gula Pasir,1,12000,12000
+005,Minyak Goreng,1,32000,32000
+006,Kopi Hitam,1,10000,10000
+006,Sabun Mandi,3,3000,9000
+006,Mie Instan Goreng,8,3000,24000
+007,Beras Premium,2,65000,130000
+007,Minyak Goreng,1,32000,32000
+008,Susu UHT 1L,1,18000,18000
+008,Teh Manis,2,8000,16000
+008,Kopi Hitam,2,10000,20000
+009,Mie Instan Kuah,5,2800,14000
+009,Mie Instan Goreng,5,3000,15000
+009,Telur Ayam,1,26000,26000
+010,Tepung Terigu,3,11000,33000
+010,Gula Pasir,2,12000,24000
+010,Susu UHT 1L,1,18000,18000

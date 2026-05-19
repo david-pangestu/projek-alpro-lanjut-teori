@@ -346,7 +346,12 @@ void tampilkanMenu() {
         case 2:
              perbaruiData(databaseBarang, jumlahBarang);
              tampilkanMenu(); 
-        break;   
+        break;
+        
+        case 3:
+            tambahBarang();
+            tampilkanMenu();
+        break;
 
         case 5:
             cout << "Program Selesai. Terima kasih!" << endl;

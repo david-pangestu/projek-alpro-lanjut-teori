@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <cstdlib> // Tambahan library untuk system()
 
 using namespace std;
 
@@ -42,21 +41,17 @@ void tahanLayar() {
 // 1. FUNGSI CEK INVENTARIS
 // ==========================================
 void cekInventaris() {
-    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
-
     char pilihanCari;
     string kodeBarang;
     bool found;
     char pilihanCariLagi;
 
-    cout << "--- CEK INVENTARIS ---" << endl;
     cout << "\n[Sistem]: Membaca data dari inventaris.csv...\n" << endl;
 
     ifstream fileInventaris("inventaris.csv");
 
     if (!fileInventaris.is_open()) {
         cout << "ERROR: File inventaris.csv tidak ditemukan!\n" << endl;
-        tahanLayar();
         return; 
     }
 
@@ -126,22 +121,16 @@ void cekInventaris() {
     } while(pilihanCariLagi == 'y' || pilihanCariLagi == 'Y');
 
     fileInventaris.close();
-    tahanLayar(); // Tahan layar sebelum kembali ke menu
 }
 
 // ==========================================
 // 2. FUNGSI PERBARUI DATA
 // ==========================================
 void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
-    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
-
-    cout << "--- PERBARUI DATA BARANG ---\n" << endl;
-
     jumlahBarang = 0;
     ifstream fileInput("inventaris.csv");
     if (!fileInput.is_open()) {
         cout << "Gagal membuka file inventaris.csv!\n\n";
-        tahanLayar();
         return;
     }
 
@@ -173,7 +162,7 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 
     char editBarangLain;
     do {
-        bersihkanLayar(); // Bersihkan layar jika user ingin mengedit barang lain (looping)
+        // Bagian Tampilan Tabel yang Sudah Disamakan dengan cekInventaris
         cout << "===================================================" << endl;
         cout << "KODE\t| NAMA BARANG\t\t| STOK\t| HARGA" << endl;
         cout << "===================================================" << endl;
@@ -210,15 +199,14 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
             }
         }
 
+        cout << "\n--- Detail Barang Terpilih ---\n";
+        cout << "ID    : " << databaseBarang[indexDitemukan].id << "\n";
+        cout << "Nama  : " << databaseBarang[indexDitemukan].nama << "\n";
+        cout << "Stok  : " << databaseBarang[indexDitemukan].stok << "\n";
+        cout << "Harga : " << databaseBarang[indexDitemukan].harga << "\n";
+
         char editLagi;
         do {
-            bersihkanLayar();
-            cout << "\n--- Detail Barang Terpilih ---\n";
-            cout << "ID    : " << databaseBarang[indexDitemukan].id << "\n";
-            cout << "Nama  : " << databaseBarang[indexDitemukan].nama << "\n";
-            cout << "Stok  : " << databaseBarang[indexDitemukan].stok << "\n";
-            cout << "Harga : " << databaseBarang[indexDitemukan].harga << "\n";
-
             cout << "\nAtribut yang ingin di-edit:\n";
             cout << "1. Nama\n2. Stok\n3. Harga\nPilihan (1-3): ";
             int pilihanEdit;
@@ -251,6 +239,7 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 
         cout << "\nApakah Anda ingin mengedit BARANG LAIN? (y/n): ";
         cin >> editBarangLain;
+        cout << endl;
 
     } while (editBarangLain == 'y' || editBarangLain == 'Y');
 
@@ -276,10 +265,6 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 // 3. Tambah Barang
 // ==========================================
 void tambahBarang(){
-    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
-
-    cout << "--- TAMBAH BARANG BARU ---\n" << endl;
-
     bool konfirmasi = false;
     char konfirmChar;
     string namaBarang, hargaBarang, stokBarang, idBaru, idTerakhir, baris;
@@ -290,7 +275,8 @@ void tambahBarang(){
         cout<<"Nama barang  : "; getline(cin, namaBarang);
         cout<<"Harga barang : "; cin>>hargaBarang;
         cout<<"Stok barang  : "; cin>>stokBarang;
-        
+        cin.ignore();
+
         cout<<"\nKonfirmasi penambahan (y/n)? ";cin>>konfirmChar;
 
         if (konfirmChar == 'y' || konfirmChar == 'Y')
@@ -340,22 +326,20 @@ void tambahBarang(){
     if (!tulisBarang.is_open())
     {
         cout<<"ERROR: File tidak ditemukan!"<<endl;
-        tahanLayar();
         return;
     }
 
     tulisBarang << idBaru << ',' << namaBarang << ',' << stokBarang << ',' << hargaBarang << endl;
 
     tulisBarang.close();
-    cout<<"Barang berhasil ditambahkan dengan ID: " << idBaru << endl;
+    cout<<"Barang berhasil ditambahkan!" << endl;
     cout << "\nMau tambah lagi (y/n)? "; cin >> konfirmChar;
 
     if (konfirmChar == 'y' || konfirmChar == 'Y')
     {
         tambahBarang();
-    } else {
-        tahanLayar(); // Tahan layar jika tidak ingin menambah barang lagi
     }
+    
 }
 
 // ==========================================
@@ -371,7 +355,6 @@ void cariTransaksi() {
 
     if (!fileTransaksi.is_open()) {
         cout << "ERROR: File daftar_transaksi.csv tidak ditemukan!\n";
-        tahanLayar();
         return;
     }
 

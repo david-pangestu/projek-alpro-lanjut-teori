@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <cstdlib> // Tambahan library untuk system()
 
 using namespace std;
 
@@ -17,20 +18,45 @@ struct Akun {
 };
 
 // ==========================================
+// FUNGSI TAMBAHAN: PEMBERSIH & PENAHAN LAYAR
+// ==========================================
+
+// Fungsi ini mendeteksi OS agar fungsi clear screen tidak error 
+// baik dijalankan di Windows (cls) maupun Mac/Linux (clear)
+void bersihkanLayar() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+// Fungsi agar terminal tidak langsung bersih sebelum user menekan Enter
+void tahanLayar() {
+    cout << "\nTekan Enter untuk melanjutkan...";
+    cin.ignore(256, '\n'); // Membersihkan sisa buffer input (seperti karakter 'enter' sebelumnya)
+    cin.get();             // Menunggu user menekan Enter
+}
+
+// ==========================================
 // 1. FUNGSI CEK INVENTARIS
 // ==========================================
 void cekInventaris() {
+    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
+
     char pilihanCari;
     string kodeBarang;
     bool found;
     char pilihanCariLagi;
 
+    cout << "--- CEK INVENTARIS ---" << endl;
     cout << "\n[Sistem]: Membaca data dari inventaris.csv...\n" << endl;
 
     ifstream fileInventaris("inventaris.csv");
 
     if (!fileInventaris.is_open()) {
         cout << "ERROR: File inventaris.csv tidak ditemukan!\n" << endl;
+        tahanLayar();
         return; 
     }
 
@@ -100,16 +126,22 @@ void cekInventaris() {
     } while(pilihanCariLagi == 'y' || pilihanCariLagi == 'Y');
 
     fileInventaris.close();
+    tahanLayar(); // Tahan layar sebelum kembali ke menu
 }
 
 // ==========================================
 // 2. FUNGSI PERBARUI DATA
 // ==========================================
 void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
+    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
+
+    cout << "--- PERBARUI DATA BARANG ---\n" << endl;
+
     jumlahBarang = 0;
     ifstream fileInput("inventaris.csv");
     if (!fileInput.is_open()) {
         cout << "Gagal membuka file inventaris.csv!\n\n";
+        tahanLayar();
         return;
     }
 
@@ -141,7 +173,7 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 
     char editBarangLain;
     do {
-        // Bagian Tampilan Tabel yang Sudah Disamakan dengan cekInventaris
+        bersihkanLayar(); // Bersihkan layar jika user ingin mengedit barang lain (looping)
         cout << "===================================================" << endl;
         cout << "KODE\t| NAMA BARANG\t\t| STOK\t| HARGA" << endl;
         cout << "===================================================" << endl;
@@ -178,14 +210,15 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
             }
         }
 
-        cout << "\n--- Detail Barang Terpilih ---\n";
-        cout << "ID    : " << databaseBarang[indexDitemukan].id << "\n";
-        cout << "Nama  : " << databaseBarang[indexDitemukan].nama << "\n";
-        cout << "Stok  : " << databaseBarang[indexDitemukan].stok << "\n";
-        cout << "Harga : " << databaseBarang[indexDitemukan].harga << "\n";
-
         char editLagi;
         do {
+            bersihkanLayar();
+            cout << "\n--- Detail Barang Terpilih ---\n";
+            cout << "ID    : " << databaseBarang[indexDitemukan].id << "\n";
+            cout << "Nama  : " << databaseBarang[indexDitemukan].nama << "\n";
+            cout << "Stok  : " << databaseBarang[indexDitemukan].stok << "\n";
+            cout << "Harga : " << databaseBarang[indexDitemukan].harga << "\n";
+
             cout << "\nAtribut yang ingin di-edit:\n";
             cout << "1. Nama\n2. Stok\n3. Harga\nPilihan (1-3): ";
             int pilihanEdit;
@@ -218,7 +251,6 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
 
         cout << "\nApakah Anda ingin mengedit BARANG LAIN? (y/n): ";
         cin >> editBarangLain;
-        cout << endl;
 
     } while (editBarangLain == 'y' || editBarangLain == 'Y');
 
@@ -237,16 +269,17 @@ void perbaruiData(Barang databaseBarang[], int& jumlahBarang) {
         cout << "\n[Error] Gagal menyimpan data ke file!\n";
     }
 
-    cout << "\nTekan Enter untuk kembali ke Menu Utama...";
-    cin.ignore(); 
-    cin.get();    
-    cout << endl;
+    tahanLayar(); // Tahan layar sebelum kembali ke menu
 }
 
 // ==========================================
 // 3. Tambah Barang
 // ==========================================
 void tambahBarang(){
+    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
+
+    cout << "--- TAMBAH BARANG BARU ---\n" << endl;
+
     bool konfirmasi = false;
     char konfirmChar;
     string namaBarang, hargaBarang, stokBarang, idBaru, idTerakhir, baris;
@@ -257,8 +290,7 @@ void tambahBarang(){
         cout<<"Nama barang  : "; getline(cin, namaBarang);
         cout<<"Harga barang : "; cin>>hargaBarang;
         cout<<"Stok barang  : "; cin>>stokBarang;
-        cin.ignore();
-
+        
         cout<<"\nKonfirmasi penambahan (y/n)? ";cin>>konfirmChar;
 
         if (konfirmChar == 'y' || konfirmChar == 'Y')
@@ -269,17 +301,21 @@ void tambahBarang(){
 
     idTerakhir = "000";
     ifstream fileBaca ("inventaris.csv");
-    string headerSkip;
-    getline(fileBaca, baris);
+    if (!fileBaca.is_open()) {
+        // Jika file belum ada, anggap file baru
+    } else {
+        string headerSkip;
+        getline(fileBaca, baris);
 
-    while (getline(fileBaca, baris))
-    {
-        if (!baris.empty())
+        while (getline(fileBaca, baris))
         {
-            idTerakhir = baris.substr(0, baris.find(','));
+            if (!baris.empty())
+            {
+                idTerakhir = baris.substr(0, baris.find(','));
+            }
         }
+        fileBaca.close();
     }
-    fileBaca.close();
     
     int noBaru = 0;
     for (size_t i = 0; i < idTerakhir.length(); i++) {
@@ -304,32 +340,38 @@ void tambahBarang(){
     if (!tulisBarang.is_open())
     {
         cout<<"ERROR: File tidak ditemukan!"<<endl;
+        tahanLayar();
         return;
     }
 
     tulisBarang << idBaru << ',' << namaBarang << ',' << stokBarang << ',' << hargaBarang << endl;
 
     tulisBarang.close();
-    cout<<"Barang berhasil ditambahkan!" << endl;
+    cout<<"Barang berhasil ditambahkan dengan ID: " << idBaru << endl;
     cout << "\nMau tambah lagi (y/n)? "; cin >> konfirmChar;
 
     if (konfirmChar == 'y' || konfirmChar == 'Y')
     {
         tambahBarang();
+    } else {
+        tahanLayar(); // Tahan layar jika tidak ingin menambah barang lagi
     }
-    
 }
 
 // ==========================================
 // 4. FUNGSI CARI TRANSAKSI
 // ==========================================
 void cariTransaksi() {
-    cout << "\n[Sistem]: Membaca data transaksi...\n" << endl;
+    bersihkanLayar(); // Bersihkan layar saat masuk ke fitur
+
+    cout << "--- CARI HISTORI TRANSAKSI ---\n" << endl;
+    cout << "[Sistem]: Membaca data transaksi...\n" << endl;
 
     ifstream fileTransaksi("daftar_transaksi.csv");
 
     if (!fileTransaksi.is_open()) {
         cout << "ERROR: File daftar_transaksi.csv tidak ditemukan!\n";
+        tahanLayar();
         return;
     }
 
@@ -406,24 +448,29 @@ void cariTransaksi() {
     } while (cariLagi == 'y' || cariLagi == 'Y');
 
     fileTransaksi.close();
+    tahanLayar(); // Tahan layar sebelum kembali ke menu
 }
-
 
 // ==========================================
 // 5. FUNGSI TAMPILKAN MENU
 // ==========================================
 void tampilkanMenu() {
+    bersihkanLayar(); // Pastikan menu utama selalu ditampilkan di layar yang bersih
+
     int pilihan;
     Barang databaseBarang[100];
     int jumlahBarang = 0;
     
-    cout << "=== DAFTAR PILIHAN ===" << endl;
+    cout << "=================================" << endl;
+    cout << "   SISTEM INVENTARIS MINIMARKET  " << endl;
+    cout << "=================================" << endl;
     cout << "1. Cek Inventaris" << endl;
-    cout << "2. Perbarui Data" << endl;
-    cout << "3. Tambah Barang" << endl;
-    cout << "4. Cari Transaksi" << endl;
+    cout << "2. Perbarui Data Barang" << endl;
+    cout << "3. Tambah Barang Baru" << endl;
+    cout << "4. Cari Histori Transaksi" << endl;
     cout << "5. Keluar" << endl;
-    cout << "Pilih yang mana? : "; cin >> pilihan;
+    cout << "=================================" << endl;
+    cout << "Pilih menu (1-5): "; cin >> pilihan;
     cout << endl;
 
     switch(pilihan) {
@@ -448,11 +495,15 @@ void tampilkanMenu() {
         break;
 
         case 5:
-            cout << "Program Selesai. Terima kasih!" << endl;
+            bersihkanLayar();
+            cout << "=================================" << endl;
+            cout << "  Program Selesai. Terima kasih! " << endl;
+            cout << "=================================\n" << endl;
         break;
 
         default:
             cout << "Pilihan tidak valid! Silahkan coba lagi.\n" << endl;
+            tahanLayar();
             tampilkanMenu();
         break;
     }
@@ -473,7 +524,11 @@ int main(){
     };
 
     while (kesempatan > 0) {
-        cout << "==== LOGIN ====" << endl;
+        bersihkanLayar(); // Layar dibersihkan setiap kali user mencoba login ulang
+
+        cout << "=================================" << endl;
+        cout << "           HALAMAN LOGIN         " << endl;
+        cout << "=================================" << endl;
         cout << "Masukkan Username: "; cin >> inputUser;
         cout << "Masukkan Password: "; cin >> inputPass;
 
@@ -487,18 +542,22 @@ int main(){
         }
 
         if (loginBerhasil == true) {
+            bersihkanLayar(); // Bersihkan form login
             cout << "\n=====================================" << endl;
             cout << "           Login Berhasil!" << endl;
             cout << "       Selamat datang, " << inputUser << "." << endl;
             cout << "=====================================\n" << endl;
+            
+            tahanLayar(); // Biarkan user membaca pesan sukses sebelum masuk ke menu
             break; 
         }
 
         kesempatan--;
-        cout << "Login Gagal. Username atau Password salah!!" << endl;
+        cout << "\nLogin Gagal. Username atau Password salah!!" << endl;
         
         if (kesempatan > 0) {
             cout << "Kesempatan anda tinggal " << kesempatan << " lagi\n" << endl;
+            tahanLayar(); // Biarkan user membaca sisa kesempatan sebelum form direfresh
         } else {
             cout << "Kesempatan anda habis. Program dihentikan!" << endl;
             return 0;

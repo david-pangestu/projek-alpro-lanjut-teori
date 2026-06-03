@@ -358,80 +358,212 @@ void cariTransaksi() {
         return;
     }
 
-    string header;
-    getline(fileTransaksi, header);
-
-    string cariID;
+    string header, cariID;
     bool ditemukan;
     char cariLagi;
 
     do {
-        do {
-            ditemukan = false;
+        ditemukan = false;
 
-            cout << "Masukkan ID transaksi : ";
-            cin >> cariID;
+        cout << "Masukkan ID transaksi : ";
+        cin >> cariID;
 
-            // reset pointer file ke awal
-            fileTransaksi.clear();
-            fileTransaksi.seekg(0, ios::beg);
-            getline(fileTransaksi, header);
+        // reset pointer file ke awal
+        fileTransaksi.clear();
+        fileTransaksi.seekg(0, ios::beg);
+        getline(fileTransaksi, header);
 
-            string id, nama, jumlah, harga, total;
-            int totalSemua = 0;
+        string id, nama, jumlah, harga, total;
+        int totalSemua = 0;
 
-            cout << "\n========================================================\n";
-            cout << left
-                << setw(20) << "Barang"
-                << setw(10) << "Jumlah"
-                << setw(12) << "Harga"
-                << setw(12) << "Subtotal"
-                << endl;
+        cout << "\n========================================================\n";
+        cout << left
+            << setw(20) << "Barang"
+            << setw(10) << "Jumlah"
+            << setw(12) << "Harga"
+            << setw(12) << "Subtotal"
+            << endl;
 
-            cout << "========================================================\n";
+        cout << "========================================================\n";
 
-            while (
-                getline(fileTransaksi, id, ',') &&
-                getline(fileTransaksi, nama, ',') &&
-                getline(fileTransaksi, jumlah, ',') &&
-                getline(fileTransaksi, harga, ',') &&
-                getline(fileTransaksi, total, '\n')
+        while (
+            getline(fileTransaksi, id, ',') &&
+            getline(fileTransaksi, nama, ',') &&
+            getline(fileTransaksi, jumlah, ',') &&
+            getline(fileTransaksi, harga, ',') &&
+            getline(fileTransaksi, total, '\n')
             ) {
 
-                if (id == cariID) {
-                    ditemukan = true;
+            if (id == cariID) {
+                ditemukan = true;
 
-                    cout << left
-                    << setw(20) << nama
-                    << setw(10) << jumlah
-                    << setw(12) << ("Rp" + harga)
-                    << setw(12) << ("Rp" + total)
-                    << endl;
-
+                cout << left
+                << setw(20) << nama
+                << setw(10) << jumlah
+                << setw(12) << ("Rp" + harga)
+                << setw(12) << ("Rp" + total)
+                << endl;
                     totalSemua += stoi(total);
-                }
             }
+        }
 
-            if (ditemukan) {
-                cout << "========================================================\n";
-                cout << "TOTAL TRANSAKSI : Rp" << totalSemua << endl;
-                cout << "========================================================\n";
-            }
-            else {
-                cout << "\nID transaksi tidak ditemukan!\n";
-                cout << "Silakan input ulang.\n\n";
-            }
-
-        } while (!ditemukan);
-
+        if (ditemukan) {
+            cout << "========================================================\n";
+            cout << "TOTAL TRANSAKSI : Rp" << totalSemua << endl;
+            cout << "========================================================\n";
+        }
+        else {
+            cout << "\nID transaksi tidak ditemukan!\n";
+            cout << "Silakan input ulang.\n\n";
+        }
+        
         cout << "Cari transaksi lain? (y/n): ";
         cin >> cariLagi;
         cout << endl;
 
-    } while (cariLagi == 'y' || cariLagi == 'Y');
+    } while (cariLagi != 'n');
+
 
     fileTransaksi.close();
     tahanLayar(); // Tahan layar sebelum kembali ke menu
+}
+
+
+// ==========================================
+// FUNGSI SORTING INVENTARIS
+// ==========================================
+int ubahKeAngka(string teks) {
+    int angka = 0;
+    for (size_t i = 0; i < teks.length(); i++) {
+        if (teks[i] >= '0' && teks[i] <= '9') {
+            angka = angka * 10 + (teks[i] - '0');
+        }
+    }
+    return angka;
+}
+
+void tampilkanTabelSorting(Barang dataBarang[], int jumlahBarang) {
+    cout << "===================================================" << endl;
+    cout << "KODE\t| NAMA BARANG\t\t| STOK\t| HARGA" << endl;
+    cout << "===================================================" << endl;
+
+    for (int i = 0; i < jumlahBarang; i++) {
+        cout << dataBarang[i].id << "\t| " << dataBarang[i].nama;
+        if (dataBarang[i].nama.length() < 14) {
+            cout << "\t\t| ";
+        } else {
+            cout << "\t| ";
+        }
+        cout << dataBarang[i].stok << "\t| Rp" << dataBarang[i].harga << endl;
+    }
+
+    cout << "===================================================\n" << endl;
+}
+
+bool perluDitukar(Barang dataKiri, Barang dataKanan, int kolom, int urutan) {
+    if (kolom == 1) {
+        if (urutan == 1) return dataKiri.id > dataKanan.id;
+        else return dataKiri.id < dataKanan.id;
+    } else if (kolom == 2) {
+        if (urutan == 1) return dataKiri.nama > dataKanan.nama;
+        else return dataKiri.nama < dataKanan.nama;
+    } else if (kolom == 3) {
+        if (urutan == 1) return dataKiri.stok > dataKanan.stok;
+        else return dataKiri.stok < dataKanan.stok;
+    } else if (kolom == 4) {
+        if (urutan == 1) return dataKiri.harga > dataKanan.harga;
+        else return dataKiri.harga < dataKanan.harga;
+    }
+
+    return false;
+}
+
+void bubbleSortInventaris(Barang dataBarang[], int jumlahBarang, int kolom, int urutan) {
+    Barang temp;
+
+    for (int i = 0; i < jumlahBarang - 1; i++) {
+        for (int j = 0; j < jumlahBarang - 1 - i; j++) {
+            if (perluDitukar(dataBarang[j], dataBarang[j + 1], kolom, urutan)) {
+                temp = dataBarang[j];
+                dataBarang[j] = dataBarang[j + 1];
+                dataBarang[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void sortingInventaris() {
+    bersihkanLayar();
+
+    Barang dataBarang[100];
+    int jumlahBarang = 0;
+
+    cout << "--- SORTING INVENTARIS ---\n" << endl;
+    cout << "[Sistem]: Membaca data dari inventaris.csv...\n" << endl;
+
+    ifstream fileInput("inventaris.csv");
+    if (!fileInput.is_open()) {
+        cout << "ERROR: File inventaris.csv tidak ditemukan!\n" << endl;
+        tahanLayar();
+        return;
+    }
+
+    string header;
+    getline(fileInput, header);
+
+    string id, nama, stok, harga;
+    while (getline(fileInput, id, ',') &&
+           getline(fileInput, nama, ',') &&
+           getline(fileInput, stok, ',') &&
+           getline(fileInput, harga, '\n')) {
+        dataBarang[jumlahBarang].id = id;
+        dataBarang[jumlahBarang].nama = nama;
+        dataBarang[jumlahBarang].stok = ubahKeAngka(stok);
+        dataBarang[jumlahBarang].harga = ubahKeAngka(harga);
+        jumlahBarang++;
+    }
+
+    fileInput.close();
+
+    if (jumlahBarang == 0) {
+        cout << "Data barang masih kosong.\n" << endl;
+        tahanLayar();
+        return;
+    }
+
+    int kolom, urutan;
+
+    cout << "Urutkan berdasarkan:" << endl;
+    cout << "1. Kode Barang" << endl;
+    cout << "2. Nama Barang" << endl;
+    cout << "3. Stok" << endl;
+    cout << "4. Harga" << endl;
+    cout << "Pilihan (1-4): "; cin >> kolom;
+
+    if (kolom < 1 || kolom > 4) {
+        cout << "\nPilihan tidak valid!\n";
+        tahanLayar();
+        return;
+    }
+
+    cout << "\nJenis urutan:" << endl;
+    cout << "1. Ascending" << endl;
+    cout << "2. Descending" << endl;
+    cout << "Pilihan (1-2): "; cin >> urutan;
+
+    if (urutan < 1 || urutan > 2) {
+        cout << "\nPilihan tidak valid!\n";
+        tahanLayar();
+        return;
+    }
+
+    bubbleSortInventaris(dataBarang, jumlahBarang, kolom, urutan);
+
+    cout << "\nData inventaris setelah diurutkan:" << endl;
+    tampilkanTabelSorting(dataBarang, jumlahBarang);
+    cout << "Catatan: sorting hanya untuk tampilan, tidak mengubah isi file inventaris.csv.\n";
+
+    tahanLayar();
 }
 
 // ==========================================
@@ -451,9 +583,10 @@ void tampilkanMenu() {
     cout << "2. Perbarui Data Barang" << endl;
     cout << "3. Tambah Barang Baru" << endl;
     cout << "4. Cari Histori Transaksi" << endl;
-    cout << "5. Keluar" << endl;
+    cout << "5. Sorting Inventaris" << endl;
+    cout << "6. Keluar" << endl;
     cout << "=================================" << endl;
-    cout << "Pilih menu (1-5): "; cin >> pilihan;
+    cout << "Pilih menu (1-6): "; cin >> pilihan;
     cout << endl;
 
     switch(pilihan) {
@@ -478,6 +611,11 @@ void tampilkanMenu() {
         break;
 
         case 5:
+            sortingInventaris();
+            tampilkanMenu();
+        break;
+
+        case 6:
             bersihkanLayar();
             cout << "=================================" << endl;
             cout << "  Program Selesai. Terima kasih! " << endl;

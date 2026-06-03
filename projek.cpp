@@ -358,77 +358,71 @@ void cariTransaksi() {
         return;
     }
 
-    string header;
-    getline(fileTransaksi, header);
-
-    string cariID;
+    string header, cariID;
     bool ditemukan;
     char cariLagi;
 
     do {
-        do {
-            ditemukan = false;
+        ditemukan = false;
 
-            cout << "Masukkan ID transaksi : ";
-            cin >> cariID;
+        cout << "Masukkan ID transaksi : ";
+        cin >> cariID;
 
-            // reset pointer file ke awal
-            fileTransaksi.clear();
-            fileTransaksi.seekg(0, ios::beg);
-            getline(fileTransaksi, header);
+        // reset pointer file ke awal
+        fileTransaksi.clear();
+        fileTransaksi.seekg(0, ios::beg);
+        getline(fileTransaksi, header);
 
-            string id, nama, jumlah, harga, total;
-            int totalSemua = 0;
+        string id, nama, jumlah, harga, total;
+        int totalSemua = 0;
 
-            cout << "\n========================================================\n";
-            cout << left
-                << setw(20) << "Barang"
-                << setw(10) << "Jumlah"
-                << setw(12) << "Harga"
-                << setw(12) << "Subtotal"
-                << endl;
+        cout << "\n========================================================\n";
+        cout << left
+            << setw(20) << "Barang"
+            << setw(10) << "Jumlah"
+            << setw(12) << "Harga"
+            << setw(12) << "Subtotal"
+            << endl;
 
-            cout << "========================================================\n";
+        cout << "========================================================\n";
 
-            while (
-                getline(fileTransaksi, id, ',') &&
-                getline(fileTransaksi, nama, ',') &&
-                getline(fileTransaksi, jumlah, ',') &&
-                getline(fileTransaksi, harga, ',') &&
-                getline(fileTransaksi, total, '\n')
+        while (
+            getline(fileTransaksi, id, ',') &&
+            getline(fileTransaksi, nama, ',') &&
+            getline(fileTransaksi, jumlah, ',') &&
+            getline(fileTransaksi, harga, ',') &&
+            getline(fileTransaksi, total, '\n')
             ) {
 
-                if (id == cariID) {
-                    ditemukan = true;
+            if (id == cariID) {
+                ditemukan = true;
 
-                    cout << left
-                    << setw(20) << nama
-                    << setw(10) << jumlah
-                    << setw(12) << ("Rp" + harga)
-                    << setw(12) << ("Rp" + total)
-                    << endl;
-
+                cout << left
+                << setw(20) << nama
+                << setw(10) << jumlah
+                << setw(12) << ("Rp" + harga)
+                << setw(12) << ("Rp" + total)
+                << endl;
                     totalSemua += stoi(total);
-                }
             }
+        }
 
-            if (ditemukan) {
-                cout << "========================================================\n";
-                cout << "TOTAL TRANSAKSI : Rp" << totalSemua << endl;
-                cout << "========================================================\n";
-            }
-            else {
-                cout << "\nID transaksi tidak ditemukan!\n";
-                cout << "Silakan input ulang.\n\n";
-            }
-
-        } while (!ditemukan);
-
+        if (ditemukan) {
+            cout << "========================================================\n";
+            cout << "TOTAL TRANSAKSI : Rp" << totalSemua << endl;
+            cout << "========================================================\n";
+        }
+        else {
+            cout << "\nID transaksi tidak ditemukan!\n";
+            cout << "Silakan input ulang.\n\n";
+        }
+        
         cout << "Cari transaksi lain? (y/n): ";
         cin >> cariLagi;
         cout << endl;
 
-    } while (cariLagi == 'y' || cariLagi == 'Y');
+    } while (cariLagi != 'n');
+
 
     fileTransaksi.close();
     tahanLayar(); // Tahan layar sebelum kembali ke menu

@@ -52,7 +52,7 @@ void cekInventaris() {
 
     if (!fileInventaris.is_open()) {
         cout << "ERROR: File inventaris.csv tidak ditemukan!\n" << endl;
-        return;
+        return; 
     }
 
     string headerAbaikan;
